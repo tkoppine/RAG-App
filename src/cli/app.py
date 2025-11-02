@@ -12,7 +12,7 @@ import argparse
 from pathlib import Path
 
 # Add src directory to Python path
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from config.settings import config
 
@@ -30,7 +30,7 @@ def run_web_server(host="127.0.0.1", port=8000, debug=False):
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'llmproject.settings')
     
     try:
-        from django.core.management import execute_from_command_line
+        from django.core.management import execute_from_command_line  # type: ignore
     except ImportError as exc:
         raise ImportError(
             "Couldn't import Django. Are you sure it's installed and "
@@ -48,7 +48,11 @@ def run_web_server(host="127.0.0.1", port=8000, debug=False):
 
 def run_cli_search(query, search_type="text", k=5, image_path=None):
     """Run CLI-based search"""
-    from search.search_engine import ArxivSearchEngine
+    try:
+        from search.search_engine import ArxivSearchEngine  # type: ignore
+    except ImportError:
+        print("❌ Search engine not available. Please ensure the search module is properly configured.")
+        return
     
     print(f"🔍 ArXiv Research Assistant - CLI Search")
     print(f"Query: {query}")
@@ -84,7 +88,11 @@ def run_cli_search(query, search_type="text", k=5, image_path=None):
 
 def build_index(input_file, output_dir="data"):
     """Build FAISS index from embeddings file"""
-    from storage.faiss_manager import build_index_from_json
+    try:
+        from storage.faiss_manager import build_index_from_json  # type: ignore
+    except ImportError:
+        print("❌ FAISS manager not available. Please ensure the storage module is properly configured.")
+        return
     
     print(f"🏗️  Building FAISS Index")
     print(f"Input: {input_file}")
@@ -105,7 +113,11 @@ def build_index(input_file, output_dir="data"):
 
 def process_papers(input_file, output_file):
     """Process papers from JSON to embeddings"""
-    from vectorization.processor import process_json
+    try:
+        from vectorization.processor import process_json  # type: ignore
+    except ImportError:
+        print("❌ Vectorization processor not available. Please ensure the vectorization module is properly configured.")
+        return
     
     print(f"🔄 Processing Papers")
     print(f"Input: {input_file}")

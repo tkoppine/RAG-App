@@ -19,7 +19,7 @@ class RocksDBManager:
     def _connect(self):
         """Connect to RocksDB"""
         try:
-            from rocksdict import Rdict
+            from rocksdict import Rdict  # type: ignore
             self.db = Rdict(str(self.db_path))
         except ImportError:
             print("Warning: rocksdict not installed. Using file-based storage as fallback.")
