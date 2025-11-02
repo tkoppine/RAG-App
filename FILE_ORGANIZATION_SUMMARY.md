@@ -3,29 +3,35 @@
 ## ✅ Files Organized and Moved
 
 ### **Main Application Files**
+
 - `app.py` → `src/cli/app.py` (Main CLI application)
 - `handler.py` → `src/handlers/handler.py` (AWS Lambda handler)
 - `main.py` → `src/legacy/main.py` (Legacy FAISS script)
 
 ### **New Root-Level Entry Point**
+
 - Created new `main.py` → Convenience wrapper for `src/cli/app.py`
 
 ### **Legacy Code Consolidated**
+
 - `backend/searchSimilarPaper.py` → `src/legacy/backend_searchSimilarPaper.py`
 - `faiss_storage/main.py` → `src/legacy/faiss_main.py`
 - `rocks_storage/main.py` → `src/legacy/rocks_main.py`
 
 ### **Vectorization Files Organized**
+
 - `json_vectorization/clip_vectorization.py` → `src/vectorization/clip_vectorization.py`
 - `json_vectorization/main.py` → `src/vectorization/main.py`
 
 ## 🗑️ Folders Removed
 
 ### **Empty Folders Removed**
+
 - ❌ `data/` (was empty - will be created at runtime)
 - ❌ `pdf_scraping/` (was empty)
 
 ### **Legacy Folders Cleaned Up**
+
 - ❌ `backend/` (contents moved to `src/legacy/`)
 - ❌ `faiss_storage/` (contents moved to `src/legacy/`)
 - ❌ `rocks_storage/` (contents moved to `src/legacy/`)
@@ -75,24 +81,29 @@ ArXiv-Research-Assistant/
 ### **Running the Application**
 
 #### Option 1: Use the new main.py wrapper
+
 ```bash
 python main.py web --host 0.0.0.0 --port 8000
 python main.py search "machine learning" --type text
 ```
 
 #### Option 2: Use the CLI directly
+
 ```bash
 python src/cli/app.py web --host 0.0.0.0 --port 8000
 python src/cli/app.py search "machine learning" --type text
 ```
 
 #### Option 3: Use Docker (unchanged)
+
 ```bash
 docker-compose up
 ```
 
 ### **Legacy Code Access**
+
 All old scripts are preserved in `src/legacy/` for reference:
+
 - `src/legacy/main.py` - Original FAISS indexing script
 - `src/legacy/backend_searchSimilarPaper.py` - Original search script
 - `src/legacy/faiss_main.py` - FAISS storage script
@@ -101,16 +112,19 @@ All old scripts are preserved in `src/legacy/` for reference:
 ## ✅ Benefits of New Organization
 
 1. **🎯 Clear Separation of Concerns**
+
    - CLI tools in `src/cli/`
    - Handlers in `src/handlers/`
    - Legacy code preserved in `src/legacy/`
 
 2. **🧹 Cleaner Root Directory**
+
    - Removed empty folders
    - Consolidated related functionality
    - Single entry point for convenience
 
 3. **📦 Better Modularity**
+
    - All Python code under `src/`
    - Logical grouping by functionality
    - Easier to navigate and maintain
@@ -123,6 +137,7 @@ All old scripts are preserved in `src/legacy/` for reference:
 ## 🚀 Next Steps
 
 1. **Test the new structure:**
+
    ```bash
    python main.py validate-config
    ```
