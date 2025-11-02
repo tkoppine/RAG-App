@@ -36,8 +36,8 @@ MANIFEST
 venv/
 env/
 ENV/
-pdf-rag-venv/
 .venv/
+*-venv/
 
 # IDE and Editor Files
 .vscode/

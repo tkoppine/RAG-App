@@ -303,21 +303,6 @@ pre-commit install
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🆘 Support
-
-- **📖 Documentation**: [Full documentation](docs/)
-- **🐛 Bug Reports**: [GitHub Issues](https://github.com/your-username/ArXiv-Research-Assistant/issues)
-- **💬 Discussions**: [GitHub Discussions](https://github.com/your-username/ArXiv-Research-Assistant/discussions)
-- **📧 Email**: support@arxiv-assistant.com
-
----
-
 ## 🏆 Acknowledgments
 
 - **[ArXiv](https://arxiv.org/)** for providing open access to scientific papers
