@@ -1,0 +1,186 @@
+# =============================================================================
+# ArXiv Research Assistant - Docker Compose Configuration
+# =============================================================================
+
+version: '3.8'
+
+services:
+  # =============================================================================
+  # Main Application Service
+  # =============================================================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
+    image: arxiv-assistant:latest
+    container_name: arxiv-assistant-app
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_DEBUG=False
+      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+      - DATA_DIR=/app/data
+      - MEDIA_ROOT=/app/media
+      - LOG_FILE=/app/logs/app.log
+    env_file:
+      - .env
+    volumes:
+      # Persistent data storage
+      - ./data:/app/data
+      - ./media:/app/media
+      - ./logs:/app/logs
+      # Development volume (comment out for production)
+      # - .:/app
+    depends_on:
+      - redis
+    networks:
+      - arxiv-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # =============================================================================
+  # Redis Cache Service
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: arxiv-assistant-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - arxiv-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+
+  # =============================================================================
+  # Nginx Reverse Proxy (Optional - for production)
+  # =============================================================================
+  nginx:
+    image: nginx:alpine
+    container_name: arxiv-assistant-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./static:/var/www/static:ro
+      - ./media:/var/www/media:ro
+    depends_on:
+      - app
+    networks:
+      - arxiv-network
+    restart: unless-stopped
+    profiles:
+      - production
+
+  # =============================================================================
+  # Development Services
+  # =============================================================================
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    image: arxiv-assistant:dev
+    container_name: arxiv-assistant-dev
+    ports:
+      - "8000:8000"
+      - "8888:8888"  # Jupyter notebook
+    environment:
+      - DJANGO_DEBUG=True
+      - DEV_MODE=True
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - ./data:/app/data
+      - ./media:/app/media
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+    networks:
+      - arxiv-network
+    profiles:
+      - development
+    command: sh -c "cd llm-integration/llmproject && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+  # =============================================================================
+  # Background Worker (for async tasks)
+  # =============================================================================
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
+    image: arxiv-assistant:latest
+    container_name: arxiv-assistant-worker
+    environment:
+      - DJANGO_DEBUG=False
+      - WORKER_MODE=True
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./media:/app/media
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+      - app
+    networks:
+      - arxiv-network
+    restart: unless-stopped
+    profiles:
+      - production
+    command: python src/workers/task_worker.py
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  arxiv-network:
+    driver: bridge
+    name: arxiv-network
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  redis_data:
+    name: arxiv-redis-data
+
+# =============================================================================
+# Usage Examples:
+# =============================================================================
+# 
+# Development:
+#   docker-compose --profile development up
+# 
+# Production:
+#   docker-compose --profile production up -d
+# 
+# Default (basic app + redis):
+#   docker-compose up
+# 
+# Build and run:
+#   docker-compose up --build
+# 
+# Run in background:
+#   docker-compose up -d
+# 
+# View logs:
+#   docker-compose logs -f app
+# 
+# Stop all services:
+#   docker-compose down
+# 
+# Stop and remove volumes:
+#   docker-compose down -v
+# 
+# =============================================================================
